@@ -33,7 +33,39 @@ for i, rect in ipairs(grid) do
 end
 
 
--- ── Move to Screen 2 + Maximize (KMK Layer 2) ──
+-- ── Cycle Focus Through Grid Windows ──
+-- Ctrl+Alt+Cmd+0 focuses the next window occupying a grid cell (1→2→…→8→1)
+
+local cycleIndex = 0
+
+hs.hotkey.bind(mods, "0", function()
+  local screen = hs.screen.find(macScreen)
+  if not screen then return end
+  local screenFrame = screen:frame()
+
+  for attempt = 1, #grid do
+    cycleIndex = (cycleIndex % #grid) + 1
+    local rect = grid[cycleIndex]
+
+    local targetRect = hs.geometry.rect(
+      screenFrame.x + rect.x * screenFrame.w,
+      screenFrame.y + rect.y * screenFrame.h,
+      rect.w * screenFrame.w,
+      rect.h * screenFrame.h
+    )
+
+    for _, win in ipairs(hs.window.orderedWindows()) do
+      local center = win:frame().center
+      if targetRect:containsPoint(center) then
+        win:focus()
+        return
+      end
+    end
+  end
+end)
+
+
+-- ── Move to Screen 2 + Maximize (KMK Layer 1) ──
 -- Ctrl+Alt+Cmd+9 moves focused window to second screen and maximizes it
 
 hs.hotkey.bind(mods, "9", function()

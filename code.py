@@ -218,7 +218,7 @@ keyboard.keymap = [
 
     # Layer 1: Macros (momentary, active while holding bottom-left)
     [
-        SWITCH_WINDOW, KC.SLASH,  KC.UP,   KC.ESC,
+        KC.LCTL(KC.LALT(KC.LGUI(KC.N0))), KC.SLASH, KC.UP, KC.ESC,
         KC.TRNS,       KC.RGUI,   KC.DOWN, KC.ENTER,
     ],
 
