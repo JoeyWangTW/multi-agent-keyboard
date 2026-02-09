@@ -35,13 +35,11 @@ keyboard.modules.append(mouse_keys)
 class LayerRGB(RGB):
     def on_layer_change(self, layer):
         if layer == 0:
-            self.set_hsv_fill(0, 0, 0)
+            self.set_hsv_fill(0, 0, 0)       # off (grid)
         elif layer == 1:
-            self.set_hsv_fill(170, 255, 255) # blue
+            self.set_hsv_fill(170, 255, 255)  # blue (macros)
         elif layer == 2:
-            self.set_hsv_fill(43, 255, 255)  # yellow
-        elif layer == 3:
-            self.set_hsv_fill(0, 255, 255)   # red
+            self.set_hsv_fill(0, 255, 255)    # red (mouse)
         self.show()
 
 class RGBLayers(Layers):
@@ -193,58 +191,40 @@ RAYCAST = KC.MACRO(
     Release(KC.LGUI),
 )
 
-# Triple tap ESC -> mouse layer (layer 3)
-ESC_MOUSE_TD = KC.TD(
-    KC.ESC,
-    KC.ESC,
-    KC.FD(3),
-)
-
-# Triple tap -> layer 2, single/double tap -> sleep
-TOUCH_GRASS_TD = KC.TD(
-    TOUCH_GRASS,
-    TOUCH_GRASS,
+# Top-right TapDance: triple tap toggles layer 0 <-> layer 2
+# Layer 0: single/double = grid pos 4, triple = mouse layer
+GRID4_TO_L2 = KC.TD(
+    KC.LCTL(KC.LALT(KC.LGUI(KC.N4))),
+    KC.LCTL(KC.LALT(KC.LGUI(KC.N4))),
     KC.FD(2),
 )
 
-# Triple tap ESC -> back to layer 0 (used in layer 2)
-ESC_BACK_TD = KC.TD(
-    KC.ESC,
-    KC.ESC,
-    KC.FD(0),
-)
-
-# Triple tap RMB -> back to layer 0 (used in layer 3)
-RMB_LAYER_0 = KC.TD(
+# Layer 2: single/double = RMB, triple = back to grid
+RMB_TO_L0 = KC.TD(
     KC.MB_RMB,
     KC.MB_RMB,
     KC.FD(0),
 )
 
-SLASH_LAYER_1 = KC.LT(1, KC.SLASH)
+# Bottom-left Layer 0: hold = momentary layer 1, tap = move to screen 2 + maximize
+SCREEN2_HOLD_L1 = KC.LT(1, KC.LCTL(KC.LALT(KC.LGUI(KC.N9))))
 
 keyboard.keymap = [
-    # Layer 0: Default
+    # Layer 0: Window grid, hold bottom-left -> layer 1, triple tap top-right -> layer 2
     [
-        VIBE_ON,        SLASH_LAYER_1,  KC.UP,   ESC_MOUSE_TD,
-        TOUCH_GRASS_TD, KC.RGUI,        KC.DOWN, KC.ENTER,
+        KC.LCTL(KC.LALT(KC.LGUI(KC.N1))), KC.LCTL(KC.LALT(KC.LGUI(KC.N2))), KC.LCTL(KC.LALT(KC.LGUI(KC.N3))), GRID4_TO_L2,
+        SCREEN2_HOLD_L1,                   KC.LCTL(KC.LALT(KC.LGUI(KC.N6))), KC.LCTL(KC.LALT(KC.LGUI(KC.N7))), KC.LCTL(KC.LALT(KC.LGUI(KC.N8))),
     ],
 
-    # Layer 1: Terminal & editing
+    # Layer 1: Macros (momentary, active while holding bottom-left)
     [
-        OPEN_TERMINAL, KC.SLASH,     VTC,     KC.BACKSPACE,
-        SWITCH_WINDOW, CLOSE_WINDOW, CRLT_C,  KC.DQUO,
+        SWITCH_WINDOW, KC.SLASH,  KC.UP,   KC.ESC,
+        KC.TRNS,       KC.RGUI,   KC.DOWN, KC.ENTER,
     ],
 
-    # Layer 2: Window management (like layer 1 but with app switching & screen moves)
+    # Layer 2: Mouse, triple tap top-right -> back to layer 0
     [
-        SWITCH_APP,       KC.SLASH,     VTC,     ESC_BACK_TD,
-        MOVE_SCREEN2_MAX, CLOSE_WINDOW, CRLT_C,  KC.DQUO,
-    ],
-
-    # Layer 3: Mouse
-    [
-        KC.PGUP,   KC.MB_LMB,  KC.MS_UP,   RMB_LAYER_0,
+        KC.PGUP,   KC.MB_LMB,  KC.MS_UP,   RMB_TO_L0,
         KC.PGDOWN, KC.MS_LEFT, KC.MS_DOWN, KC.MS_RIGHT,
     ],
 ]
