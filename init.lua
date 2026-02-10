@@ -41,22 +41,23 @@ local cycleIndex = 0
 hs.hotkey.bind(mods, "0", function()
   local screen = hs.screen.find(macScreen)
   if not screen then return end
-  local screenFrame = screen:frame()
+  local sf = screen:frame()
 
   for attempt = 1, #grid do
     cycleIndex = (cycleIndex % #grid) + 1
-    local rect = grid[cycleIndex]
+    local r = grid[cycleIndex]
 
-    local targetRect = hs.geometry.rect(
-      screenFrame.x + rect.x * screenFrame.w,
-      screenFrame.y + rect.y * screenFrame.h,
-      rect.w * screenFrame.w,
-      rect.h * screenFrame.h
-    )
+    -- Target cell bounds in absolute coordinates
+    local tx = sf.x + r.x * sf.w
+    local ty = sf.y + r.y * sf.h
+    local tw = r.w * sf.w
+    local th = r.h * sf.h
 
     for _, win in ipairs(hs.window.orderedWindows()) do
-      local center = win:frame().center
-      if targetRect:containsPoint(center) then
+      local f = win:frame()
+      local cx = f.x + f.w / 2
+      local cy = f.y + f.h / 2
+      if cx >= tx and cx < tx + tw and cy >= ty and cy < ty + th then
         win:focus()
         return
       end
