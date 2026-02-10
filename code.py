@@ -67,7 +67,7 @@ GRID4_TO_L2 = KC.TD(grid_key(4), grid_key(4), KC.FD(2))
 RMB_TO_L0 = KC.TD(KC.MB_RMB, KC.MB_RMB, KC.FD(0))
 
 # Bottom-left Layer 0: hold = momentary layer 1, tap = move to screen 2 + maximize
-SCREEN2_HOLD_L1 = KC.LT(1, grid_key(9))
+SCREEN2_HOLD_L1 = KC.LT(1, grid_key(5))
 
 keyboard.keymap = [
     # Layer 0: Window grid, hold bottom-left -> layer 1, triple tap top-right -> layer 2
