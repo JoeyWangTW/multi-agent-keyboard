@@ -3,7 +3,11 @@
 --   [1] [2] [3] [4]
 --   [5] [6] [7] [8]
 
-local macScreen = 1  -- MacBook Built-in Retina Display (use screen ID, not name)
+-- Use the built-in display as the target screen
+-- hs.screen.primaryScreen() returns the screen with the menu bar
+local function getMacScreen()
+  return hs.screen.primaryScreen()
+end
 
 local grid = {
   -- Row 1
@@ -24,7 +28,7 @@ for i, rect in ipairs(grid) do
   hs.hotkey.bind(mods, tostring(i), function()
     local win = hs.window.focusedWindow()
     if not win then return end
-    local screen = hs.screen.find(macScreen)
+    local screen = getMacScreen()
     if screen then
       win:moveToScreen(screen)
       win:moveToUnit(rect, 0)
@@ -35,13 +39,16 @@ end
 
 -- ── Cycle Focus Through Grid Windows ──
 -- Ctrl+Alt+Cmd+0 focuses the next window occupying a grid cell (1→2→…→8→1)
+-- Uses a window filter to avoid expensive hs.window.orderedWindows() calls
 
+local wf = hs.window.filter.new():setCurrentSpace(true):setDefaultFilter({})
 local cycleIndex = 0
 
 hs.hotkey.bind(mods, "0", function()
-  local screen = hs.screen.find(macScreen)
+  local screen = getMacScreen()
   if not screen then return end
   local sf = screen:frame()
+  local allWindows = wf:getWindows(hs.window.filter.sortByFocusedLast)
 
   for attempt = 1, #grid do
     cycleIndex = (cycleIndex % #grid) + 1
@@ -53,7 +60,7 @@ hs.hotkey.bind(mods, "0", function()
     local tw = r.w * sf.w
     local th = r.h * sf.h
 
-    for _, win in ipairs(hs.window.orderedWindows()) do
+    for _, win in ipairs(allWindows) do
       local f = win:frame()
       local cx = f.x + f.w / 2
       local cy = f.y + f.h / 2
